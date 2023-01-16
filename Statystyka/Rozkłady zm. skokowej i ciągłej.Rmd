@@ -1,0 +1,432 @@
+
+---
+title: "N BD1 Lista1 - Rozwiązania"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+## Małgorzata Honc, nr albumu: 38663
+
+
+**Zadanie 1.**
+Na stację kolejową wjeżdża pociąg osobowy. W pociągu jest 200 miejsc siedzących. Na stacji czeka grupa 80 pasażerów. Prawdopodobieństwo, że w danym składzie na tej stacji kolejowej o tej godzinie dane miejsce siedzące jest zajęte, wynosi 80%. W środowisku R wylicz
+
+```{r}
+# Rozkład dwumianowy
+n = 200  # liczba wszystkich msc w pociągu
+s = 80   # liczba osób czekających na stacji
+p = 1 - 0.8  # prawdopodobieństwo, że msce jest zajęte
+
+```
+
+**a)** prawdopodobieństwo tego, że wszyscy wsiadający pasażerowie będą mieli miejsce siedzące,
+
+
+```{r}
+# W pociągu musi być 80 wolnych miejsc lub więcej - suma prawdopodobienstw od punktu 79 do 200 
+a = 1 - pbinom (q=79, size = n, prob = p)
+cat ("Prawdodpodobieństwo wyniesie: ", a*100, "%")
+```
+
+**b)** prawdopodobieństwo tego, że dokładnie połowa wsiadających pasażerów znajdzie miejsce siedzące
+
+```{r}
+# Prawdopodobienstwo, gdy dokładnie 40 osób będzie miało miejsce, prawdopodobieństwo dla jednej wartości
+b = dbinom (x=40, size =n, prob =p)
+cat ("Prawdodpodobieństwo wyniesie: ", b*100, "%")
+```
+**c)**  prawdopodobieństwo tego, że co najmniej połowa wsiadających pasażerów znajdzie
+miejsce siedzące,
+
+
+```{r}
+# Połowa liczby pasażerów to 40. W związku z tym w pociągu musi być conajmniej 40 miejsc wolnych, ale może być ich więcej (może być np. cały pociąg).
+c = 1 - pbinom (q = 39, size = n, prob = 0.2)
+cat ("Prawdodpodobieństwo wyniesie: ", c*100, "%")
+
+```
+**d)** prawdopodobieństwo tego, że parzysta liczba wsiadających pasażerów znajdzie miejsce
+siedzące,
+
+```{r}
+#"Ilość osób, dla których szukane jest rozwiązanie to wartości wektora v. 
+v = seq (0,80,2)
+# Jeśli będzie wiecej miejsc dostępnych to również  pasażerowie wsiądą w parzystej liczbie, czyli 80
+d = (sum(dbinom (x=v, size = n, prob =p)) + pbinom(q=81, size=n, prob=p, lower.tail = FALSE))
+cat ("Prawdodpodobieństwo wyniesie: ", b*100, "%")
+```
+**e)** prawdopodobieństwo, że liczba wsiadających pasażerów, dla których zabrakło miejsca
+siedzącego, zawiera się w przedziale zamkniętym [30; 60]
+``` {r}
+# Prawdopodobieństwo, że miejsce znalazły osoby w przedziałe [0:29] oraz [61:80]
+e = pbinom(q=50,size=n,prob=p) - (pbinom(q=19,size=n,prob=p))
+cat ("Prawdodpodobieństwo wyniesie: ", e*100, "%")
+
+
+```
+**f)** wartość oczekiwana i wariancja
+``` {r}
+E= 200*0.2
+cat ("Wartość oczekiwana wynosi: ", E)
+
+
+D=n*p*(1-p)
+cat ("Wariancja wynosi: ", D)
+```
+**g)** mediana liczby wolnych miejsc
+``` {r}
+med=qbinom(p=0.5, size = n, prob = p)
+cat("Mediana liczby wolnych miejsc wynosi: ", med)
+```
+
+**Symulacja przejazdu 100 pociągów**
+```{r}
+symulation = rbinom (n=100, size =200, prob = p)
+more_than_50 = symulation > 50  
+cat("W symulacji 100 przejazdów pociągów było ",sum(more_than_50), "wolnych miejsc powyżej 50")
+```
+**Wykres rozkładu prawdopodobieństwa**
+
+```{r} 
+
+barplot(names.arg=0:80, height =dbinom(x=0:80,size=80,prob=0.2), xlab='x', ylab = 'P(x)', col = "white", main="Wykres funkcji rozkładu gęstości prawdopodobieństwa")
+
+```
+
+**Wykres dystrybuanty**
+
+```{r}
+plot(x=0:80, pbinom(q=0:80,size=n,prob=p), xlab='x', ylab = 'F(x)', type="s",lwd=2,col="darkred", main="Wykres funkcji dystrybuanty")
+```
+
+**Zadanie 2.** Dla popularnej gry sieciowej istnieje 900 serwerów. Algorytm, który ma przyłączyć
+gracza do serwera, wyznacza losowo 30 różnych serwerów, aby znaleźć środowisko rozgrywki
+najbardziej adekwatne do statystyk gracza. Załóżmy, że dla danego gracza istnieje 189 serwerów z
+odpowiednim środowiskiem. Wylicz w R prawdopodobieństwo, że w grupie 30 serwerów
+sprawdzonych przez algorytm
+
+```{r}
+# Rozkład hipergeometryczy
+#x           liczba sukcesów  
+m = 189    # liczba elementów mających pożadaną cechę (białe kule)
+n = 711    # liczba elementów mających niepożadaną cechę (czarne kule)
+k = 30     # próba losowa
+``` 
+
+**a)** na dokładnie 10 serwerach środowisko będzie adekwatne
+
+```{r}
+a = dhyper (x=10, m = m, n = n, k= k)
+cat ("Prawdodpodobieństwo wyniesie: ", a*100, "%")
+```
+**b)** na co najmniej 10 serwerach środowisko będzie adekwatne,
+```{r}
+b = 1 - phyper (q=9, m = m, n = n, k= k)
+cat ("Prawdodpodobieństwo wyniesie: ", b*100, "%")
+```
+
+
+**c)** liczba serwerów z adekwatnym środowiskiem jest albo w przedziale [0; 5], albo w 
+przedziale [15; 20],
+
+```{r}
+# Prawdopodobieństwo jest iczone jako suma dwóch składowych :
+# - dystrybuanta 15:20, czyli F(20)- F(14)
+# - dystrybuanta 0:5, czyli F(5)
+c = phyper(q=20, m=m, n=n, k=k) - phyper(q=14, m=m, n=n, k=k) +  phyper(q=5, m=m, n=n, k=k)
+cat ("Prawdodpodobieństwo wyniesie: ", c*100, "%")
+```
+**d)** liczba serwerów z nieadekwatnym środowiskiem jest albo w przedziale [0; 5], albo w 
+przedziale [15; 20]
+``` {r}
+# W zadaniu przyjęte bedzie, jakby to nieadekwatność środowiska była "sukcesem" rozkładu normalnego, czyli zmienną m
+
+d = phyper(q=20, m=711, n= 189, k=k) - phyper(q=14, m=711, n= 189, k=k) +  phyper(q=5, m=711, n= 189, k=k)
+cat ("Prawdodpodobieństwo wyniesie: ", d*100, "%")
+```
+**e)** Jaka jest graniczna liczba serwerów, dla której możemy powiedzieć, że z prawdopodobieństwem 
+40% co najwyżej tyle będzie serwerów z odpowiednim środowiskiem?
+
+``` {r}
+e = qhyper(p = 0.4, m, n, k)
+e
+cat ("Graniczna liczba serwerów z prawdopodobieństwem co najwyżej 40% to: ", e)
+```
+
+**f)** Wykonaj symulację 50 wykonań algorytmu. Jaka była średnia liczba serwerów z adekwatnym
+środowiskiem?
+
+``` {r}
+f = rhyper(nn = 5000, m, n, k)
+cat ("Średnia liczba adekwatnych serwerów dla symulacji wyniosła: ", mean(f))
+```
+
+**g)** Wylicz wartość oczekiwaną oraz dystrybuantę dla liczby serwerów z adekwatnym środowiskiem
+
+``` {r}
+E = 30 * (189/900)
+cat ("Wartość oczekiwana wynosi: ", E)
+
+
+D = ((900- n)/(900-1))*E*(1-0.2)
+cat ("Wariancja wynosi: ", D)
+
+```
+
+**Wykres rozkładu prawdopodobieństwa**
+
+```{r} 
+# 
+barplot(names.arg=0:30, height = dhyper (x=0:30, m = 189, n = 711, k= 30), xlab='x', ylab = 'P(x)', col = "white", main="Wykres funkcji rozkładu gęstości prawdopodobieństwa")
+
+```
+
+**Wykres dystrybuanty**
+
+```{r}
+
+plot(x=0:30, phyper(q=0:30,m=189,n=711,k=30), xlab='x', ylab = 'F(x)', type="s",lwd=2,col="darkred", main="Wykres funkcji dystrybuanty")
+
+```
+
+**Zadanie 3.** Wykonaj zadanie 1 korzystając z rozkładu Poissona.
+(Na stację kolejową wjeżdża pociąg osobowy. W pociągu jest 200 miejsc siedzących. Na
+stacji czeka grupa 80 pasażerów. Prawdopodobieństwo, że w danym składzie na tej stacji kolejowej
+o tej godzinie dane miejsce siedzące jest zajęte, wynosi 80%)
+
+```{r}
+#Rozdkła Poissona
+#By wyliczyć prawdopodobieństwo w rozkładzie Poissona konieczne jest określenie oczekiwanej liczby zdarzeń w danym przedziale czasu, czyli parametru lambda. Na potrzeby zadania założono, że wykonano obserwację 100 symulacji i wyliczono z nich średnią wartość.
+l = mean(rbinom(n=100,size=200, prob=0.2)) #lambda, wartość oczekiwana
+l
+```
+
+**a)** prawdopodobieństwo tego, że wszyscy wsiadający pasażerowie będą mieli miejsce siedzące
+
+
+```{r}
+a = sum(dpois(x=80:200,lambda=1))
+cat ("Prawdodpodobieństwo wyniesie: ", a*100, "%")
+```
+
+**b)** prawdopodobieństwo tego, że dokładnie połowa wsiadających pasażerów znajdzie miejsce siedzące,
+``` {r}
+b = dpois (40, l)
+cat ("Prawdodpodobieństwo wyniesie: ", b*100, "%")
+```
+**c)** prawdopodobieństwo tego, że co najmniej połowa wsiadających pasażerów znajdzie
+miejsce siedzące,
+
+``` {r}
+c = 1 - ppois (39,l)
+cat ("Prawdodpodobieństwo wyniesie: ", c*100, "%")
+```
+**d)** prawdopodobieństwo tego, że parzysta liczba wsiadających pasażerów znajdzie miejsce siedzące,
+
+``` {r}
+s=seq(0,80,2)
+d=sum(dpois(x=s, lambda=l))+(ppois(q=81, lambda=l, ,lower.tail=FALSE))
+cat ("Prawdodpodobieństwo wyniesie: ", d*100, "%")
+```
+**e)** prawdopodobieństwo, że liczba wsiadających pasażerów, dla których zabrakło miejsca
+siedzącego, zawiera się w przedziale zamkniętym [30; 60]
+
+``` {r}
+e = ppois(q=50,lambda=l) - (ppois(q=19,lambda=l))
+cat ("Prawdodpodobieństwo wyniesie: ", e*100, "%")
+
+```
+
+**f)** wartość oczekiwaną i wariancję.
+
+
+``` {r}
+E = l
+cat ("Wartość oczekiwana wynosi: ", E)
+D2 = l*(1-p)
+cat ("Warianca wynosi: ", D2)
+```
+**g)** mediana liczby wolnych miejsc
+``` {r}
+med = qpois (0.5, l)
+cat ("Mediana liczbya wolnych miejsc wynosi: ", med)
+```
+**Symulacja przejazdu 100 pociągów**
+
+``` {r}
+more_than_50 = sum(rpois(50, l)>50)
+cat("W symulacji 100 przejazdów pociągów było ",more_than_50, "wolnych miejsc powyżej 50")
+
+```
+**Wykres rozkładu prawdopodobieństwa**
+
+```{r} 
+
+barplot(names.arg=0:80, height=dpois(x=0:80,lambda = l), xlab='x', ylab = 'P(x)', col = "white", main="Wykres funkcji rozkładu gęstości prawdopodobieństwa")
+
+```
+
+**Wykres dystrybuanty**
+
+```{r}
+
+plot(x=0:80, ppois(q=0:80,lambda =l), xlab='x', ylab = 'F(x)', type="s",lwd=2,col="darkred", main="Wykres funkcji dystrybuanty")
+
+```
+
+
+**Zadanie 4.** Czas przesunięcia głowicy dysku twardego nad docelową ścieżkę dany jest rozkładem 
+równomiernym w przedziale [2; 18] ms. Wylicz w R
+
+
+``` {r}
+# Rozkład jednostajny 
+min = 2 
+max = 18
+
+```
+
+**a)** prawdopodobieństwo, że czas ten nie przekroczy 10ms
+``` {r}
+a = punif(10, min = min, max = max)
+cat ("Prawdodpodobieństwo wyniesie: ", a*100, "%")
+```
+
+**b)**prawdopodobieństwo, że czas ten będzie równy 10ms z tolerancją 1ms
+
+``` {r}
+# policzone jako przedział między 9, a 11
+b = punif(11, min = min, max = max) - punif(9, min = min, max = max)
+cat ("Prawdodpodobieństwo wyniesie: ", b*100, "%")
+```
+
+**c)** prawdopodobieństwo, że czas ten będzie większy niż 15ms
+``` {r}
+c = 1 - punif (15, min =min, max = max)
+cat ("Prawdodpodobieństwo wyniesie: ", c*100, "%")
+```
+
+**d)** prawdopodobieństwo, że czas ten będzie równy co najmniej 15ms,
+``` {r}
+d = 1 - punif(15, min= min, max = max)
+cat ("Prawdodpodobieństwo wyniesie: ", d*100, "%")
+```
+**e)** prawdopodobieństwo, że czas ten nie będzie się różnił od czasu oczekiwanego o więcej niż 
+jedno odchylenie standardowe,
+
+``` {r}
+E = (min+max)/ 2
+D =sqrt((max - min)^2)/12 #odchylenie
+
+e = punif(q = (E+D) , min =min, max = max) - punif (q=(E-D), min=min, max = max)
+cat ("Prawdodpodobieństwo wyniesie: ", e*100, "%")
+```
+**f)**prawdopodobieństwo, że czas ten będzie się różnił od czasu oczekiwanego o więcej niż dwa
+odchylenia standardowe,
+
+```{r}
+f = punif(q = (E-2*D), min=min, max=max) + punif( q = (E+2*D), min=min, max=max ,lower.tail=FALSE )
+cat ("Prawdodpodobieństwo wyniesie: ", f*100, "%")
+```
+**g)**wartość graniczną dla 70% najkrótszych czasów przesunięcia.
+``` {r}
+g = qunif(p = 0.7, min =min, max= max)
+cat ("Wartość graniczna wynosi: ", g)
+```
+**h)** wartość oczekiwaną i wariancję.
+
+**Wykres dystrybuanty**
+
+``` {r}
+values = seq (from =0, to =20, by = 0.1)
+plot(values, punif(q = values, min = min, max = max), xlab='x', ylab = 'F(x)', type="s",lwd=2,col="darkred", main="Wykres funkcji dystrybuanty")
+
+```
+
+
+
+
+
+**Zadanie 5.** Zajętość pamięci dla struktur danych potrzebnych do wykonania pewnej procedury 
+dana jest rozkładem N(12MB; 4MB). Wylicz w R
+
+``` {r}
+#rozkład normalny  
+mean = 12 #średnia
+sd = 4    #odchylenie standardowe
+
+```
+
+**a)** prawdopodobieństwo, że rozmiar ten nie przekroczy 8MB,
+
+``` {r}
+a = pnorm (q = 8, mean = mean, sd = 4)
+cat ("Prawdodpodobieństwo wyniesie: ", a*100, "%")
+
+```
+**b)** prawdopodobieństwo, że będzie w przedziale (14MB; 16MB)
+``` {r}
+b = pnorm(q = 16, mean = mean, sd = sd) - pnorm (q = 13, mean = mean, sd = sd )
+cat ("Prawdodpodobieństwo wyniesie: ", b*100, "%")
+```
+**c)** prawdopodobieństwo, że będzie większy niż 15MB
+``` {r}
+c = 1 - pnorm (q=15, mean = mean, sd = sd)
+cat ("Prawdodpodobieństwo wyniesie: ", c*100, "%")
+``` 
+**d)** prawdopodobieństwo, że będzie równy co najmniej 15MB,
+``` {r}
+d = 1 - pnorm (q=15, mean = mean, sd = sd)
+cat ("Prawdodpodobieństwo wyniesie: ", d*100, "%")
+```
+**e)** prawdopodobieństwo, że nie będzie się różnił od czasu oczekiwanego o więcej niż jedno 
+odchylenie standardowe,
+``` {r}
+e = pnorm (q = mean+sd, mean = mean, sd = sd) - pnorm (q = mean-sd, mean = mean, sd = sd)
+cat ("Prawdodpodobieństwo wyniesie: ", e*100, "%")
+```
+**f)** prawdopodobieństwo, że będzie się różnił od czasu oczekiwanego o więcej niż dwa 
+odchylenia standardowe,
+
+``` {r}
+f = pnorm (q = mean-(2*sd), mean = mean, sd = sd) + pnorm (q = mean+(2*sd), mean = mean, sd = sd, lower.tail = FALSE) 
+cat ("Prawdodpodobieństwo wyniesie: ", f*100, "%")
+```
+
+**g)** wartość graniczną dla 20% największych zajętości pamięci
+
+```{r}
+g = qnorm (p=0.2, mean = mean, sd = sd, lower.tail=FALSE )
+cat ("Wartość graniczna wynosi: ", g)
+
+```
+
+**h)** wartość oczekiwaną i wariancję.
+```{r}
+E=mean
+cat ("Wartość oczekiwana wynosi: ", E)
+
+D2 = sd^2
+cat ("Wariancja wynosi: ", D2)
+```
+
+**Wykres rozkładu prawdopodobieństwa**
+
+```{r} 
+
+barplot(names.arg=0:30, height=dnorm (x = 0:30, mean = mean, sd = 4), xlab='x', ylab = 'P(x)', col = "white", main="Wykres funkcji rozkładu gęstości prawdopodobieństwa")
+
+```
+
+**Wykres dystrybuanty**
+
+```{r}
+
+plot(x=0:30, pnorm(q= 0:30, mean = mean, sd = 4), xlab='x', ylab = 'F(x)', type="s",lwd=2,col="darkred", main="Wykres funkcji dystrybuanty")
+
+```
+
+
+
+

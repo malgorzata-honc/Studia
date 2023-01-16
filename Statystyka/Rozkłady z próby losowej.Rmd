@@ -1,0 +1,496 @@
+---
+title: "N BD1 Lista2 - Rozwiązania"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## Małgorzata Honc, nr albumu: 38663
+
+We wszystkich zadanich: 
+sigma - odchylenie dla populacji, 
+s - odchylenie dla próby
+
+**Zadanie 1.** Dzienna liczba odwiedzin popularnej strony internetowej
+jest dana rozkładem N(121.000, 7500). Jakie jest prawdopodobieństwo, że:
+
+```{r}
+# Rozkład średniej z próby losowej
+
+# średnia
+m = 121000
+
+# odchylenie standardowe
+sigma = 7500
+```
+
+a)  Średnia dzienna liczba odwiedzin w ciągu tygodnia przekroczy
+    121.500,
+
+```{r}
+# Pr(SrX > 121.500) = 1 - F(121500)
+
+# odchylenie standardowe dla próby (7 dni)
+s = sigma/sqrt(7) 
+# z funkcji na dystrybuantę rozkładu normalnego
+a = 1-pnorm(q=121500, mean = m, sd = s)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((a*100),2), "%")
+```
+
+b)  Średnia dzienna liczba odwiedzin w ciągu miesiąca (30 dni)
+    przekroczy 121.500,
+
+```{r}
+# Pr(SrX > 121.500) = 1 - F(121500)
+
+# odchylenie standardowe dla próby (30 dni)
+s = sigma/sqrt(30)
+# z funkcji na dystrybuantę rozkładu normalnego
+b = 1-pnorm(q=121500, mean = m, sd = s)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((b*100),2), "%")
+```
+
+c)  Średnia dzienna liczba odwiedzin w ciągu roku przekroczy 121.500,
+
+```{r}
+# Pr(SrX > 121.500) = 1 - F(121500)
+
+# odchylenie standardowe dla próby (365 dni)
+s = sigma/sqrt(365)
+# z funkcji na dystrybuantę rozkładu normalnego
+c = 1-pnorm(q=121500, mean = m, sd = s)
+
+cat ("Prawdodpodobieństwo wyniesie: ",  round((c*100),2), "%")
+```
+
+Prawdopodobieństwo dla tego samego założenia (przekroczenia dziennie
+121500 odwiedzin), ale zwiększającej się próbki maleje. 7 dni - 43 %, 30
+dni - 35.75 %, 365 dni - 10.14 %.
+
+d)  średnia dzienna liczba odwiedzin w ciągu miesiąca będzie się różniła
+    o więcej niż 100 od średniej dziennej liczby odwiedzin?
+
+```{r}
+# Pr(m-100 < SrX) + Pr(SrX> m+100)= F(m-99) + F(m+101)
+
+# odchylenie standardowe dla próby (30 dni)
+s = sigma/sqrt(30) 
+# z funkcji na dystrybuantę rozkładu normalnego 
+d = pnorm (q = m-99, mean = m, sd = s) + pnorm (q = m+101, mean = m, sd = s, lower.tail = FALSE)
+d
+
+cat ("Prawdodpodobieństwo wyniesie: ",  round((d*100),2), "%")
+```
+
+**Zadanie 2.** W pliku BDLista2.rdata umieszczono w zmiennej freqs
+wartości częstotliwości zegara dla 100 egzemplarzy płyty głównej, przy
+czym wiadomo, że częstotliwość ta jest dana rozkładem normalnym o
+średniej 133MHz. Jakie jest prawdopodobieństwo, że:
+
+```{r}
+# Rozkład t-Studenta (ze względu na fakt, iż odchylenie standardowe dla populacji jest nieznane)
+
+# średnia z populacji 
+m = 133
+
+freqs = c (132.9973, 132.9988, 132.9977, 133.0031, 133.0138, 132.9837, 133.0089, 132.9956, 133.0006, 133.0050, 132.9995, 132.9961, 133.0123, 132.9855, 133.0093, 132.9980, 132.9937, 132.9922, 132.9981, 133.0050, 132.9990, 132.9997, 132.9917, 133.0135, 133.0000, 132.9922, 133.0021, 133.0146, 133.0029, 133.0056, 133.0112, 132.9831, 132.9911, 133.0008, 133.0064, 132.9943, 132.9890, 132.9839, 133.0065, 133.0178, 133.0250, 133.0124, 133.0040, 132.9929, 132.9915, 133.0010, 133.0120, 133.0013, 132.9953, 133.0002, 132.9989, 133.0049, 132.9980, 133.0111, 132.9943, 133.0173, 132.9978, 132.9850, 132.9836, 132.9867, 133.0020, 133.0039, 132.9806, 133.0036, 132.9960, 133.0045, 132.9888, 133.0044, 132.9880, 133.0072, 133.0065, 133.0041, 133.0074, 133.0084, 132.9971, 132.9707, 133.0009, 133.0029, 132.9922, 132.9707, 133.0072, 133.0109, 133.0117, 133.0142, 133.0080, 133.0007, 132.9821, 132.9994, 132.9874, 133.0030, 133.0040, 133.0031, 133.0114, 132.9988, 133.0043, 132.9989, 132.9972, 132.9758, 132.9943, 132.9844)
+
+# odchylenie z próby
+s = sd(freqs) 
+```
+
+a)  średnia wartość częstotliwości dla kolejnych 100 egzemplarzy będzie
+    nie większa niż 132,9995MHz?
+
+```{r}
+# Pr (X <= 132.9995) = Pr (  (X-m) / s*sqrt(n) <= (132.9995 -m)/s*sqrt(n)  ) 
+# Pr (U <= (132.9995 -m)/s*sqrt(n) ) = F ((132.9995 -m)/s*sqrt(n))
+
+# rozmiar próbki
+n = 100
+# statystyka t-Studenta 
+t = ((132.9995 - m)/s)*sqrt(n) #((132.9995 -m)/s)*sqrt(n)
+# z funkcji na dystrybuantę rozkładu t-Studenta 
+a = pt(q=t, df=n-1)
+
+cat ("Prawdodpodobieństwo wyniesie: ", round((a*100),2), "%")  
+```
+
+b)  średnia wartość częstotliwości dla kolejnych 1000 egzemplarzy będzie
+    nie większa niż 132,9995MHz?
+
+```{r}
+# Pr (X <= 132.9995) = Pr (  (X-m) / s*sqrt(n) <= (132.9995 -m)/s*sqrt(n)  )
+# Pr (U <= (132.9995 -m)/s*sqrt(n) )
+
+# rozmiar próbki
+n = 1000
+# statystyka t-Studenta
+t = ((132.9995 - m)/s)*sqrt(n) #(132.9995 -n)/s*sqrt(n) 
+# z funkcji na dystrybuantę rozkładu t-Studenta
+b = pt(q=t, df=n-1)
+
+cat ("Prawdodpodobieństwo wyniesie: ", round((b*100),2), "%")  
+```
+
+c)  średnia wartość częstotliwości dla kolejnego 1000 egzemplarzy będzie
+    w przedziale (132,9995MHz; 133,0005MHz)?
+
+```{r}
+# Pr (133.0005 < X < 132.9995)
+
+# rozmiar próbki
+n = 1000
+# ze względu na fakt, że przedział powinien być obustronnie otwarty zmniejszono wartość o 0.0001
+tp =  ((133.0004 - m)/s)*sqrt(n) #wynika z dokumentacji i opisu lower.tail
+tl = ((132.9995 - m)/s)*sqrt(n)
+# z funkcji na dystrybuantę rozkładu t- Studenta
+c = pt(q=tp, df=n-1) - pt(q=tl, df=n-1)
+
+cat ("Prawdodpodobieństwo wyniesie: ", round((c*100),2), "%")  
+```
+
+**Zadanie 3.** Dane są dwie próby losowe płyt głównych taktowanych
+zegarem 133MHz, ale wykonane w różnej technologii. W technologii dla
+płyt z pierwszej próby, częstotliwość jest dana rozkładem normalnym o
+średniej N(133,01; 0,0005) i próba ta liczy 150 sztuk, a dla płyt z
+drugiej próby, liczącej 250 egzemplarzy, rozkładem N(132,995; 0,0001).
+Jakie jest prawdopodobieństwo, że:
+
+```{r}
+n1 = 150 # wielkość pierwszej próbki
+n2 = 250 #wielkość drugiej próbki
+m1 = 133.01 #średnia populacji pierwszej próbki
+m2 = 132.995 #średni populacji drugiej próbki
+sigma1 = 0.0005 #odchylenie standardowe dla populacji pierwszej próbki
+sigma2 = 0.0001 #odchylenie standardowe dla populacji drugiej próbki 
+```
+
+a)  średnia częstotliwość dla pierwszej próbki jest większa od średniej
+    częstotliwości dla drugiej próbki?
+
+```{r}
+
+# Pr(srX1 > srX2) = Pr(srX1 - srX2 > 0) 
+# Rozkład pr. różnicy miedzy dwoma próbkami ze średnich z dwóch populacji
+m = m1 - m2 # średnia dla rozkładu różnicy
+s = sqrt(sigma1ˆ2/n1 + sigma2ˆ2/n2)  # odchylenie dla rozkładu różnicy
+
+# z funkcji na dystrybuantę rozkładu t- Studenta
+a = 1 - pnorm(q=0, mean=m, sd=s) 
+
+cat ("Prawdodpodobieństwo wyniesie: ", round((a*100),2), "%")  
+```
+
+b)  średnia częstotliwość dla pierwszej próbki jest większa od średniej
+    częstotliwości dla drugiej próbki o 0,01511MHz?
+
+```{r}
+# Pr(srX1 > srX2 + 0,01511) = Pr(srX1 - srX2 > 0,01511) 
+# z funkcji na dystrybuantę rozkładu różnicy miedzy dwoma próbkami ze średnich z dwóch populacji
+b = pnorm(q=0.01511, mean=m, sd=s, lower.tail = FALSE)
+
+cat ("Prawdodpodobieństwo wyniesie: ", round((b*100),2), "%")  
+```
+
+c)  różnica między średnimi częstotliwościami dla obu prób jest w
+    przedziale (0,01, 0,015)?
+
+```{r}
+# Pr(0.01 > srX1 - srX2 > 0.015)
+# z funkcji na dystrybuantę rozkładu różnicy miedzy dwoma próbkami ze średnich z dwóch populacji
+# ze względu na fakt, że przedział powinien być obustronnie otwarty zmniejszono wartość "prawej strony" o 0.01
+c = pnorm(q=0.014, mean=m, sd=s) - pnorm(q=0.01, mean=m, sd=s) 
+
+cat ("Prawdodpodobieństwo wyniesie: ", round((c*100),2), "%")           
+```
+
+**Zadanie 4.** W pliku BDCwiczenia4.R umieszczono w zmiennych freqs1
+oraz freqs2 częstotliwości dla dwóch prób losowych płyt głównych
+taktowanych zegarem 133MHz, ale wykonanych w różnej technologii. W
+technologii dla płyt z pierwszej próby częstotliwość jest dana rozkładem
+normalnym o średniej 133,01MHz, a dla płyt z drugiej próby rozkładem o
+średniej 132,995MHz. Wiadomo, że odchylenie standardowe jest takie samo
+dla obu rozkładów. Jakie jest prawdopodobieństwo, że:
+
+```{r}
+freqs1 =  c (133.0194, 133.0214, 133.0081, 133.0403, 133.0272, 133.0159, 133.0171, 133.0123, 133.0156, 133.0221, 133.0098, 133.0073, 133.0041, 133.0043, 133.0069,
+133.0126, 132.9891, 133.0001, 133.0062, 132.9844, 133.0099, 133.0066, 133.0164, 133.0139, 133.0004, 132.9907, 133.0126, 133.0078, 133.0083, 132.9921,
+133.0179, 133.0116, 132.9910, 132.9956, 133.0136, 132.9999, 133.0037, 133.0115, 133.0371, 133.0056, 133.0061, 133.0230, 133.0215, 133.0123, 133.0284,
+132.9979, 133.0124, 133.0311, 132.9949, 133.0045, 133.0088, 133.0225, 132.9922, 132.9909, 133.0126, 133.0283, 133.0269, 133.0148, 133.0110, 133.0237,
+133.0103, 132.9957, 133.0109, 132.9883, 132.9966, 133.0117, 132.9978, 133.0084, 133.0058, 133.0188, 133.0064, 133.0312, 133.0033, 133.0175, 133.0099,
+133.0030, 133.0071, 133.0253, 132.9967, 133.0262, 133.0138, 133.0155, 133.0099, 132.9915, 132.9817, 133.0060, 133.0152, 133.0187, 133.0162, 132.9994,
+133.0140, 133.0067, 133.0015, 133.0159, 133.0040, 133.0153, 133.0046, 133.0236, 133.0063, 133.0212, 133.0195, 133.0001, 133.0156, 132.9942, 133.0124,
+132.9959, 133.0141, 133.0174, 133.0019, 133.0103, 132.9948, 133.0201, 133.0126, 133.0058, 133.0059, 133.0050, 133.0025, 133.0094, 133.0008, 133.0273,
+133.0063, 133.0060, 133.0034, 133.0071, 133.0058, 133.0000, 132.9953, 132.9944, 133.0106, 133.0139, 133.0079, 133.0239, 133.0014, 133.0122, 133.0092,
+133.0152, 133.0200, 133.0225, 133.0139, 133.0064, 133.0095, 133.0089, 133.0179, 133.0162, 133.0010, 133.0158, 132.9967, 133.0286, 133.0065, 132.9964,
+133.0140, 132.9985, 133.0051, 132.9932, 133.0126, 133.0140, 132.9900, 133.0293, 133.0035, 132.9975, 133.0254, 132.9932, 133.0079, 133.0073, 133.0234,
+133.0185, 132.9973, 132.9992, 133.0151, 133.0075, 132.9922, 133.0177, 133.0226, 133.0112, 133.0092, 132.9994, 133.0044, 133.0181, 133.0116, 133.0033,
+133.0070, 133.0117, 133.0226, 133.0012, 133.0108, 133.0095, 132.9905, 133.0032, 133.0139, 133.0002, 133.0130, 132.9949, 133.0188, 132.9930, 133.0046,
+133.0130, 133.0394, 133.0283, 133.0098, 132.9994, 133.0245, 132.9994, 133.0034, 133.0124, 133.0201, 133.0139, 133.0071, 133.0006, 133.0186, 133.0132,
+133.0192, 133.0225, 133.0164, 133.0068, 133.0107, 133.0412, 133.0129, 132.9983, 133.0125, 133.0196, 133.0160, 133.0056, 133.0173, 133.0045, 133.0223,
+133.0129, 133.0178, 133.0314, 133.0148, 133.0146, 133.0063, 133.0030, 132.9919, 133.0088, 133.0113, 133.0016, 133.0180, 133.0091, 132.9984, 133.0118,
+133.0208, 133.0014, 133.0348, 133.0034, 133.0072, 133.0268, 133.0185, 133.0182, 133.0243, 133.0060, 133.0153, 133.0194, 133.0094, 133.0327, 133.0085,
+133.0084, 133.0113, 133.0167, 133.0097, 133.0159, 133.0184, 133.0104, 133.0194, 133.0088, 132.9996, 133.0302, 132.9986, 133.0153, 133.0124, 133.0107,
+133.0296, 133.0128, 132.9989, 133.0075, 132.9966, 133.0015, 132.9909, 133.0144, 133.0333, 132.9884, 133.0018, 133.0038, 132.9822, 133.0161, 133.0210,
+133.0243, 133.0035, 133.0227, 133.0091, 133.0074, 132.9995, 133.0033, 133.0160, 133.0021, 133.0129, 132.9882, 133.0082, 133.0193, 133.0144, 133.0051)
+freqs2 = c (132.9927, 133.0126, 132.9854, 132.9859, 132.9870, 133.0016, 132.9912, 132.9927, 132.9812, 132.9815, 132.9844, 132.9785, 133.0002, 132.9975, 133.0043, 132.9811,
+132.9869, 132.9874, 132.9935, 132.9896, 133.0116, 132.9916, 133.0105, 133.0054, 133.0016, 132.9827, 133.0013, 132.9872, 133.0087, 132.9911, 132.9782, 132.9909,
+132.9955, 132.9879, 132.9898, 133.0088, 132.9962, 132.9753, 132.9972, 133.0086, 133.0047, 132.9943, 132.9866, 132.9961, 133.0021, 132.9931, 132.9970, 132.9900,
+133.0086, 132.9984, 133.0067, 132.9910, 132.9999, 132.9894, 132.9876, 132.9888, 132.9911, 133.0081, 132.9872, 133.0220, 132.9863, 132.9993, 133.0035, 132.9936,
+132.9893, 132.9915, 132.9868, 133.0065, 133.0036, 132.9990, 133.0019, 132.9990, 132.9790, 132.9983, 133.0142, 132.9931, 132.9908, 132.9988, 132.9892, 133.0123,
+132.9983, 132.9844, 133.0022, 132.9926, 132.9971, 133.0029, 132.9896, 132.9902, 132.9933, 133.0023, 132.9901, 132.9933, 132.9920, 132.9971, 132.9948, 132.9966,
+132.9943, 132.9995, 133.0108, 132.9996, 132.9941, 133.0019, 132.9914, 132.9937, 133.0116, 132.9944, 132.9954, 132.9945, 133.0032, 132.9970, 132.9934, 132.9976,
+132.9857, 132.9960, 133.0031, 133.0044, 132.9808, 132.9850, 132.9922, 132.9862, 133.0008, 132.9869, 132.9998, 132.9754, 132.9897, 132.9953, 132.9699, 132.9878,
+132.9859, 132.9942, 132.9929, 132.9974, 133.0094, 132.9989, 132.9898, 132.9838, 133.0147, 133.0042, 132.9855, 133.0082, 132.9823, 132.9689, 133.0017, 132.9897,
+132.9912, 132.9817, 132.9963, 133.0030, 133.0082, 133.0174, 132.9982, 132.9905, 132.9956, 133.0069, 132.9834, 132.9888, 132.9989, 132.9947, 132.9914, 132.9843,
+132.9952, 132.9859, 133.0002, 133.0070, 133.0067, 132.9872, 132.9784, 133.0011, 132.9679, 132.9871, 133.0043, 133.0009, 132.9954, 132.9956, 132.9961, 132.9900,
+132.9937, 132.9941, 132.9912, 132.9923, 132.9765, 132.9848, 133.0056, 133.0023, 133.0057, 133.0018, 132.9893, 133.0120, 132.9946, 132.9850, 132.9946, 132.9941,
+132.9940, 132.9967, 133.0063, 132.9938, 133.0072, 133.0045, 133.0144, 133.0057, 133.0021, 132.9877, 133.0051, 133.0020, 132.9978, 133.0024, 133.0043, 132.9906,
+132.9950, 132.9944, 132.9816, 132.9767, 132.9948, 132.9956, 132.9930, 133.0073, 132.9960, 132.9844, 133.0073, 132.9924, 132.9970, 132.9828, 133.0043, 132.9883,
+132.9757, 133.0011, 132.9997, 132.9811, 132.9926, 133.0069, 132.9962, 132.9837, 132.9721, 132.9787, 132.9993, 132.9749, 132.9821, 132.9909, 132.9829, 133.0022,
+133.0050, 132.9729, 132.9964, 133.0013, 132.9710, 132.9958, 132.9743, 133.0012, 132.9979, 133.0101, 132.9896, 132.9892, 133.0062, 132.9917, 132.9900, 133.0121,
+132.9890, 132.9937, 132.9955, 132.9988, 132.9932, 132.9817, 133.0049, 133.0018, 133.0189, 132.9929, 132.9894, 133.0003, 133.0069, 132.9824, 132.9915, 133.0203,
+132.9881, 132.9869, 133.0004, 132.9962, 132.9963, 132.9890, 133.0044, 132.9969, 132.9982, 132.9904, 133.0013, 133.0119, 133.0030, 132.9791, 132.9919, 132.9902,
+132.9761, 132.9982, 132.9942, 132.9871, 133.0121, 132.9963, 133.0021, 132.9895, 133.0089, 133.0042, 132.9966, 132.9938, 132.9925, 132.9773, 132.9982, 132.9894,
+132.9959, 132.9899, 132.9833, 132.9981, 132.9991, 133.0023, 133.0066, 133.0014, 133.0019, 132.9884, 132.9979, 132.9758, 132.9886, 133.0037, 132.9747, 133.0153,
+132.9924, 132.9785, 132.9957, 132.9968, 133.0005, 132.9810, 132.9936, 133.0049, 132.9915, 132.9999, 132.9821, 132.9823, 132.9914, 132.9913, 132.9862, 133.0093,
+132.9951, 132.9918, 132.9916, 132.9885, 132.9994, 133.0009, 132.9965, 133.0083, 132.9856, 132.9890, 132.9955, 133.0076, 132.9857, 132.9864, 132.9844, 132.9919,
+132.9803, 133.0057, 132.9956, 132.9984, 132.9841, 132.9995, 132.9919, 133.0045, 132.9900, 132.9966, 133.0014, 133.0181, 132.9955, 132.9997, 132.9885, 133.0239,
+132.9854, 132.9957, 132.9997, 132.9972, 132.9918, 133.0123, 132.9963, 132.9708, 132.9872, 132.9973, 133.0059, 133.0105, 132.9925, 132.9862, 133.0235, 133.0041,
+132.9897, 132.9847, 133.0092, 132.9789, 133.0090, 132.9956, 132.9994, 132.9781, 132.9928, 133.0001, 133.0049, 132.9954, 132.9882, 132.9901, 132.9878, 132.9757,
+132.9906, 132.9978, 132.9831, 132.9942, 132.9974, 132.9824, 133.0005, 132.9843, 133.0032, 133.0062, 132.9988, 132.9838, 132.9898, 133.0047, 132.9843, 133.0055,
+132.9863, 132.9904, 132.9925, 132.9906, 133.0005, 132.9831, 133.0069, 132.9763, 133.0053, 133.0035, 132.9976, 132.9958, 132.9898, 133.0130, 132.9769, 132.9985,
+133.0035, 132.9786, 132.9856, 133.0090, 132.9988, 132.9881, 133.0206, 133.0008, 132.9942, 133.0053, 132.9911, 132.9940, 133.0139, 132.9964, 132.9851, 133.0042,
+133.0025, 132.9985, 132.9972, 132.9887, 132.9752, 132.9890, 133.0142, 133.0144, 132.9872, 132.9936, 133.0124, 133.0010, 132.9888, 133.0001, 133.0014, 133.0022,
+132.9789, 132.9979, 132.9988, 133.0010, 132.9709, 133.0009, 132.9998, 132.9878, 132.9934, 132.9927, 133.0010, 132.9904, 132.9803, 132.9955, 133.0007, 132.9953,
+132.9957, 132.9929, 132.9920, 132.9799, 132.9916, 132.9855, 132.9805, 132.9964, 133.0034, 132.9951, 133.0000, 132.9996, 132.9833, 133.0088, 132.9919, 132.9849, 
+133.0169, 133.0022, 132.9963, 132.9932)
+  
+m1 = 133.01 # średnia pierwszej populacji
+m2 = 132.995 # średnia drugiej populacji
+# sigma, czyli odchylenie dla obu populacji  jest nieznane, ale jednakowe
+n1 = length(freqs1) # wielkość pierwszej próbki
+n2 = length (freqs2)# wielkość drugiej próbki
+s1 = sd(freqs1) # odchylenie pierwszej próbki
+s2 = sd(freqs2) # odchylenie drugiej próbki
+```
+
+a)  średnia częstotliwość dla pierwszej próbki jest większa od średniej
+    częstotliwości dla drugiej próbki?
+
+```{r}
+# Pr(SrX1>SrX2) = Pr(SrX1-SrX2>0) 
+# Różnica średnich arytmetycznych z dwóch prób losowych z nieznanym, ale jednakowym sigma ma rozkład t-Studenta
+
+# średnia ważona z wariancji z obu prób
+s2p = ( ((n1-1)*s1^2) + ((n2-1)*s2^2) )/(n1+n2-2)
+# statystyka t
+t = (0 - (m1-m2))/ (sqrt(s2p*(1/n1+1/n2)))
+# stopnie swobody
+v = n1+n2- 2
+# z funkcji na dystrybuantę z rozkładu t-Studenta
+a = pt (q = t, df = v)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((a*100),2), "%")
+```
+
+b)  średnia częstotliwość dla pierwszej próbki jest większa od średniej
+    częstotliwości dla drugiej próbki o 0,014MHz?
+
+```{r}
+# Pr(SrX1 > SrX2 - 0.014) = Pr(SrX1-SrX2> - 0.014)  #rozkład t-Studenta
+# Pr(-(SrX1+SrX2)<=0.14)
+
+# statystyka t
+t = (0.014 - (m1-m2) ) / (sqrt(s2p*(1/n1+1/n2)))
+# z funkcji na dystrybuantę z rozkładu t-Studenta
+b = pt (q = -t, df = v)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((b*100),2), "%")
+```
+
+c)  różnica między średnimi częstotliwościami dla obu prób jest w
+    przedziale (0,013, 0,015)?
+
+```{r}
+# statystyka t
+tp = (0.014 - (m1-m2) ) / s2p*(1/n1+1/n2) # ze względu na fakt, że przedział powinien być obustronnie otwarty zmniejszono wartość o 0.001
+tl = (0.013 - (m1-m2) ) / s2p*(1/n1+1/n2)
+# z funkcji na dystrybuantę z rozkładu t-Studenta
+c = pt (q = tp, df = v) - pt (q = tl, df = v)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((c*100),2), "%")
+```
+
+**Zadanie 5.** Czas wykonania implementacji algorytmu dla losowych
+danych wejściowych jest dany rozkładem normalnym o wariancji 10 (ms)2.
+Jakie jest prawdopodobieństwo, że:
+
+```{r}
+# rozkład chi^2
+x = seq(from = 0, to =200)
+plot (x=x, dchisq (x = x, df = 99), type = 'l')
+# wariancja dla populacji rozkładu normalnego
+var_pop = 10 
+```
+
+a)  wariancja wykonania dla 100 instancji danych losowych przekroczy 12
+    (ms)2?
+
+```{r}
+# wielkość próby 
+n = 100 
+# wariancja dla próby
+var_trial = 12 
+# statystyka chi2 (po przekształceniu wzoru)
+chi2 = (n-1) * var_trial/(var_pop) #statystyka chi-kwadrat pozwala na wyznaczenie punktu dla s2=12 w rozkładzie
+# z funkcji na dystrybuantę rozkładu wariancji
+a = pchisq (q = chi2, df = n-1, lower.tail = FALSE)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((a*100),2), "%")
+```
+
+b)  wariancja wykonania dla 100 instancji danych losowych nie przekroczy
+    8 (ms)2?
+
+```{r}
+# wariancja dla próby
+var_trial = 8 
+# statystyka chi2 (po przekształceniu wzoru)
+chi2 = ((n-1) * (var_trial))/(var_pop)
+# z funkcji na dystrybuantę rozkładu wariancji
+b = pchisq (q = chi2, df = n-1)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((b*100),2), "%")
+```
+
+c)  wariancja wykonania dla 100 instancji danych losowych będzie w
+    przedziale (10 (ms)2, 12(ms)2)?
+
+```{r}
+var_trial_p = 11 # ze względu na fakt, że przedział powinien być obustronnie otwarty zmniejszono wartość o 1
+chi2p = (n-1) * var_trial_p/(var_pop)
+
+var_trial_l = 10
+chi2l = (n-1) * var_trial_l/(var_pop)
+
+c = pchisq (q = chi2p, df = n-1) - pchisq (q = chi2l, df = n-1)
+ 
+cat ("Prawdodpodobieństwo wyniesie około: ", round((c*100),2), "%")
+```
+
+d)  wariancja wykonania dla 100 instancji danych będzie co najmniej dwa
+    razy większa od rzeczywistej?
+
+```{r}
+chi2 = (n-1)*2 
+d = dchisq (x = chi2, df = 99)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((d*100),2), "%")
+```
+
+**Zadanie 6.** Do rozwiązania tego samego problemu, który rozwiązuje
+algorytm z Zadania 5, zaproponowano Algorytm B, którego czas wykonania
+jest dany rozkładem normalnym o wariancji 15 (ms)2. Jakie jest
+prawdopodobieństwo, że przy wykonaniu Algorytmu A na 100 losowych
+instancjach oraz algorytmu B na 150 losowych instancjach, dla tych prób
+losowych:
+
+```{r}
+var_pop_A= 10 # wariancja pierwszej populacji
+var_pop_B = 15 # wariancja drugiej populacji
+nA = 100 # wielkość pierwszej próbki
+nB = 150 # wielkość drugiej próbki
+v1 = nA - 1 # stopnie swobody
+v2 = nB - 1 # stopnie swobody
+```
+
+a)  wariancja czasu wykonania Algorytmu A jest co najmniej o 20% większa
+    od wariancji czasu wykonania Algorytmu B?
+
+```{r}
+#Pr(VarA => 1.2VarB) = Pr (VarA/VarB =>1.2) #Rozkład ilorazu wariancji z prób z dwóch populacji normalnych, Rozkład FSnedecora
+# U > 1.2 (var_pop_B/var_pop_A)
+
+#statystyka FSnederoca 
+f_snedecor = 1.2*(var_pop_B/var_pop_A)
+# z funkcji na dystrybuantę rozkładu FSnederoca
+a = pf (q = f_snedecor, df1 = v1, df2 = v2, lower.tail = FALSE)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((a*100),2), "%")
+```
+
+b)  wariancja czasu wykonania Algorytmu B jest co najmniej dwa razy
+    większa od wariancji czasu wykonania Algorytmu A?
+
+```{r}
+#Pr(VarB => 2VarA) = Pr (VarA/VarB =>2)
+#statystyka FSnederoca 
+f_snedecor = 2*(var_pop_A/var_pop_B)
+# z funkcji na dystrybuantę rozkładu FSnederoca
+b = pf (q = f_snedecor, df1 = v1, df2 = v2, lower.tail = FALSE)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((b*100),2), "%")
+```
+
+c)  wariancje czasu wykonania obu algorytmów są takie same z
+    dokładnością do 5%?
+
+```{r}
+#Pr(VarA = VarB) = Pr (VarA/VarB = 1)
+#statystyka FSnederoca 
+f_snedecor = 1*(var_pop_B/var_pop_A)
+# z funkcji na dystrybuantę rozkładu FSnederoca
+c = df (x = f_snedecor, df1 = v1, df2 = v2)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((c*100),2), "%")
+```
+
+**Zadanie 7.** Prawdopodobieństwo pobrania gry w dniu premiery w czasie
+nie więcej niż 1h wynosi 0.25. Jakie jest prawdopodobieństwo, że:
+
+```{r}
+p=0.25
+```
+
+a)  spośród tysiąca graczy, mniej niż 260 uda się pobrać grę w tym
+    czasie?
+
+```{r}
+#wielkość całej próby
+n = 1000
+# z funkcji na dystrybuantę rozkładu dwumianowego
+a = pbinom (q=259, size = n, prob = p)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((a*100),2), "%")
+```
+
+b)  spośród 100.000 graczy, więcej niż 25.200 uda się pobrać grę w tym
+    czasie?
+
+```{r}
+#wielkość próby
+n = 100000
+# z funkcji na dystrybuantę rozkładu dwumianowego
+b = pbinom (q = 25200, size = n, prob =p, lower.tail = FALSE)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((b*100),2), "%")
+```
+
+c)  liczba graczy spośród 1.000.000, którym uda się pobrać grę w tym
+    czasie, jest w przedziale (249.000, 251.000)?
+
+```{r}
+#wielkość próby
+n = 1000000
+# z funkcji na dystrybuantę rozkładu dwumianowego
+c = pbinom (q = 251000-1, size = n, prob =p) - pbinom (q = 249000, size = n, prob =p)
+
+cat ("Prawdodpodobieństwo wyniesie około: ", round((c*100),2), "%")
+```
